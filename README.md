@@ -2,7 +2,7 @@
 
 A simple JavaScript web app that lets you search any city and browse restaurants using real-time data from the Yelp Fusion API.
 
-**Live demo:** [startfruit.onrender.com](https://startfruit.onrender.com) *(update with your actual URL)*
+**Live demo:** [starfruit-express.onrender.com](https://starfruit-express.onrender.com/)
 
 ## Approach
 
