@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StartFruit — Restaurant Finder</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+    :root {
+      --bg: #FAF7F2;
+      --bg-card: #FFFFFF;
+      --text: #1A1714;
+      --text-secondary: #4A4640;
+      --text-muted: #8A847A;
+      --accent: #E8572A;
+      --accent-light: #FFF0EB;
+      --accent-dark: #D14A22;
+      --green: #2D8B55;
+      --green-light: #EDFAF2;
+      --border: #E8E4DD;
+      --star: #E8A32A;
+      --star-empty: #E0DCD5;
+      --radius: 16px;
+      --radius-sm: 10px;
+      --shadow: 0 1px 3px rgba(26,23,20,0.04), 0 6px 24px rgba(26,23,20,0.06);
+      --shadow-hover: 0 4px 12px rgba(26,23,20,0.08), 0 16px 40px rgba(26,23,20,0.12);
+    }
+
+    html { font-size: 16px; }
+
+    body {
+      font-family: 'Instrument Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100dvh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* --- HEADER --- */
+    .header {
+      padding: 2.5rem 1.5rem 0;
+      max-width: 1200px;
+      margin: 0 auto;
+      text-align: center;
+      animation: fadeDown 0.6s ease-out both;
+    }
+
+    .logo {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(2.2rem, 5vw, 3rem);
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      color: var(--text);
+    }
+    .logo span { color: var(--accent); }
+
+    .tagline {
+      margin-top: 0.5rem;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    /* --- SEARCH --- */
+    .search-area {
+      max-width: 1200px;
+      margin: 2rem auto 0;
+      padding: 0 1.5rem;
+      animation: fadeDown 0.6s 0.1s ease-out both;
+    }
+
+    .search-box {
+      display: flex;
+      gap: 0;
+      background: var(--bg-card);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      box-shadow: var(--shadow);
+    }
+    .search-box:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(232,87,42,0.10), var(--shadow);
+    }
+
+    .search-box input {
+      flex: 1;
+      border: none;
+      outline: none;
+      padding: 1rem 1.25rem;
+      font-size: 1rem;
+      font-family: inherit;
+      background: transparent;
+      color: var(--text);
+      min-width: 0;
+    }
+    .search-box input::placeholder { color: var(--text-muted); }
+
+    .search-box button {
+      border: none;
+      background: var(--accent);
+      color: #fff;
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 0.9rem;
+      padding: 1rem 1.6rem;
+      cursor: pointer;
+      letter-spacing: 0.01em;
+      transition: background 0.15s;
+      white-space: nowrap;
+    }
+    .search-box button:hover { background: var(--accent-dark); }
+    .search-box button:active { background: #BB3F1B; }
+    .search-box button:disabled {
+      background: #C4C0B8;
+      cursor: not-allowed;
+    }
+
+    /* --- STATUS MESSAGES --- */
+    .status {
+      max-width: 1200px;
+      margin: 2rem auto 0;
+      padding: 0 1.5rem;
+      text-align: center;
+    }
+
+    .status-message {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      padding: 2rem 0;
+    }
+
+    .status-message.error {
+      color: var(--accent);
+      background: var(--accent-light);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+    }
+
+    /* --- LOADING SKELETON --- */
+    .skeleton-list {
+      max-width: 1200px;
+      margin: 1.5rem auto 0;
+      padding: 0 1.5rem;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+    .skeleton-card {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      animation: pulse 1.2s ease-in-out infinite alternate;
+    }
+    .skeleton-img {
+      width: 100%;
+      height: 180px;
+      background: linear-gradient(90deg, #ECEAE5 25%, #F5F3EF 50%, #ECEAE5 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s ease-in-out infinite;
+    }
+    .skeleton-body { padding: 1.1rem 1.25rem; }
+    .skeleton-bar {
+      border-radius: 6px;
+      background: linear-gradient(90deg, #ECEAE5 25%, #F5F3EF 50%, #ECEAE5 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s ease-in-out infinite;
+    }
+    .skeleton-bar.title { width: 65%; height: 18px; }
+    .skeleton-bar.stars { width: 40%; height: 14px; margin-top: 0.7rem; }
+    .skeleton-bar.addr  { width: 85%; height: 13px; margin-top: 0.6rem; }
+
+    /* --- RESULTS --- */
+    .results {
+      max-width: 1200px;
+      margin: 1.5rem auto 3rem;
+      padding: 0 1.5rem;
+    }
+
+    .results-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+    }
+    .results-header h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.35rem;
+      font-weight: 400;
+      letter-spacing: -0.01em;
+    }
+    .results-header .count {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.1rem;
+    }
+
+    /* --- CARD --- */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: box-shadow 0.25s, border-color 0.25s, transform 0.25s;
+      box-shadow: var(--shadow);
+      cursor: default;
+      opacity: 0;
+      transform: translateY(16px);
+      animation: cardIn 0.45s ease-out forwards;
+      display: flex;
+      flex-direction: column;
+    }
+    .card:hover {
+      box-shadow: var(--shadow-hover);
+      border-color: #D0CCC5;
+      transform: translateY(-3px);
+    }
+
+    .card-img {
+      width: 100%;
+      height: 190px;
+      object-fit: cover;
+      display: block;
+      background: #ECEAE5;
+      transition: transform 0.4s ease;
+    }
+    .card:hover .card-img {
+      transform: scale(1.03);
+    }
+    .card-img-wrap {
+      overflow: hidden;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .card-img-placeholder {
+      width: 100%;
+      height: 190px;
+      background: linear-gradient(135deg, #ECEAE5 0%, #DDD9D2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      opacity: 0.4;
+    }
+
+    .card-cuisine-badge {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(8px);
+      padding: 0.3rem 0.65rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.75rem;
+      color: var(--text);
+      letter-spacing: 0.01em;
+    }
+
+    .card-body {
+      padding: 1.1rem 1.25rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .card-name {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.2rem;
+      line-height: 1.3;
+      letter-spacing: -0.01em;
+      color: var(--text);
+    }
+
+    .card-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .card-rating {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .card-rating .num {
+      font-weight: 700;
+      font-size: 0.88rem;
+      color: var(--text);
+    }
+    .card-rating .reviews {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .stars { display: inline-flex; gap: 1.5px; }
+    .stars svg { width: 14px; height: 14px; }
+
+    .card-categories {
+      display: flex;
+      gap: 0.35rem;
+      margin-top: 0.65rem;
+      flex-wrap: wrap;
+    }
+    .card-tag {
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.25rem 0.55rem;
+      border-radius: 6px;
+      background: var(--bg);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+
+    .card-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 0.8rem 0;
+    }
+
+    .card-details {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      margin-top: auto;
+    }
+
+    .card-detail-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      font-size: 0.84rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    .card-detail-row .icon {
+      flex-shrink: 0;
+      width: 16px;
+      height: 16px;
+      margin-top: 1px;
+      opacity: 0.5;
+    }
+
+    .card-detail-row a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .card-detail-row a:hover { text-decoration: underline; }
+
+    .card-coords-text {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      font-variant-numeric: tabular-nums;
+      opacity: 0.7;
+    }
+
+    /* --- PAGINATION --- */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .pagination button {
+      border: 1.5px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text);
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 0.85rem;
+      padding: 0.65rem 1.3rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .pagination button:hover {
+      border-color: var(--accent);
+      background: var(--accent-light);
+    }
+    .pagination button:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      border-color: var(--border);
+      background: var(--bg-card);
+    }
+
+    .pagination .page-info {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-variant-numeric: tabular-nums;
+      min-width: 110px;
+      text-align: center;
+    }
+
+    /* --- EMPTY LANDING --- */
+    .landing {
+      max-width: 1200px;
+      margin: 5rem auto;
+      padding: 0 1.5rem;
+      text-align: center;
+      animation: fadeDown 0.6s 0.25s ease-out both;
+    }
+    .landing-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.4;
+    }
+    .landing p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.55;
+      max-width: 320px;
+      margin: 0 auto;
+    }
+
+    /* --- ANIMATIONS --- */
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes cardIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulse {
+      from { opacity: 1; }
+      to   { opacity: 0.6; }
+    }
+    @keyframes shimmer {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* --- RESPONSIVE --- */
+    @media (max-width: 900px) {
+      .card-grid, .skeleton-list {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 560px) {
+      .search-box { flex-direction: column; }
+      .search-box button {
+        border-top: 1.5px solid var(--border);
+        padding: 0.85rem;
+      }
+      .card-grid, .skeleton-list {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <h1 class="logo">Start<span>Fruit</span></h1>
+    <p class="tagline">Find the best restaurants in any city</p>
+  </header>
+
+  <div class="search-area">
+    <form class="search-box" id="searchForm">
+      <input type="text" id="cityInput" placeholder="Enter a city — e.g. San Francisco" autocomplete="off" required>
+      <button type="submit" id="searchBtn">Search</button>
+    </form>
+  </div>
+
+  <div id="content">
+    <div class="landing">
+      <div class="landing-icon">&#127860;</div>
+      <p>Type a city name above to discover top-rated restaurants nearby.</p>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById("searchForm");
+    const input = document.getElementById("cityInput");
+    const btn = document.getElementById("searchBtn");
+    const content = document.getElementById("content");
+
+    let currentCity = "";
+    let currentOffset = 0;
+    const PAGE_SIZE = 20;
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const city = input.value.trim();
+      if (!city) return;
+      currentCity = city;
+      currentOffset = 0;
+      fetchRestaurants();
+    });
+
+    async function fetchRestaurants() {
+      btn.disabled = true;
+      btn.textContent = "Searching\u2026";
+      showLoading();
+
+      try {
+        const res = await fetch(`/api/restaurants?city=${encodeURIComponent(currentCity)}&offset=${currentOffset}`);
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          throw new Error(body.error || `Request failed (${res.status})`);
+        }
+        const data = await res.json();
+        if (!data.restaurants || data.restaurants.length === 0) {
+          showMessage("No restaurants found for \u201c" + escapeHtml(currentCity) + ".\u201d Try another city.");
+        } else {
+          showResults(currentCity, data.restaurants, data.total, data.offset, data.limit);
+        }
+      } catch (err) {
+        showMessage(err.message, true);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Search";
+      }
+    }
+
+    function showLoading() {
+      let html = '<div class="skeleton-list">';
+      for (let i = 0; i < 6; i++) {
+        html += `
+          <div class="skeleton-card" style="animation-delay:${i * 0.08}s">
+            <div class="skeleton-img"></div>
+            <div class="skeleton-body">
+              <div class="skeleton-bar title"></div>
+              <div class="skeleton-bar stars"></div>
+              <div class="skeleton-bar addr"></div>
+            </div>
+          </div>`;
+      }
+      html += "</div>";
+      content.innerHTML = html;
+    }
+
+    function showMessage(msg, isError = false) {
+      content.innerHTML = `
+        <div class="status">
+          <div class="status-message ${isError ? "error" : ""}">${escapeHtml(msg)}</div>
+        </div>`;
+    }
+
+    function showResults(city, restaurants, total, offset, limit) {
+      total = total || restaurants.length;
+      limit = limit || PAGE_SIZE;
+      offset = offset || 0;
+      const page = Math.floor(offset / limit) + 1;
+      const totalPages = Math.max(1, Math.ceil(total / limit));
+      const hasPrev = offset > 0;
+      const hasNext = offset + limit < total;
+
+      const html = `
+        <div class="results">
+          <div class="results-header">
+            <h2>Restaurants in ${escapeHtml(city)}</h2>
+            <span class="count">${total} total</span>
+          </div>
+          <div class="card-grid">
+            ${restaurants.map((r, i) => cardHtml(r, i)).join("")}
+          </div>
+          <div class="pagination">
+            <button id="prevBtn" ${hasPrev ? "" : "disabled"}>&#8592; Previous</button>
+            <span class="page-info">Page ${page} of ${totalPages}</span>
+            <button id="nextBtn" ${hasNext ? "" : "disabled"}>Next &#8594;</button>
+          </div>
+        </div>`;
+      content.innerHTML = html;
+
+      document.getElementById("prevBtn").addEventListener("click", () => {
+        currentOffset = Math.max(0, currentOffset - PAGE_SIZE);
+        fetchRestaurants();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+      document.getElementById("nextBtn").addEventListener("click", () => {
+        currentOffset += PAGE_SIZE;
+        fetchRestaurants();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+    }
+
+    function cardHtml(r, index) {
+      const cuisineBadge = r.categories && r.categories[0]
+        ? `<div class="card-cuisine-badge">${escapeHtml(r.categories[0])}</div>`
+        : "";
+
+      const imgHtml = r.image_url
+        ? `<div class="card-img-wrap"><img class="card-img" src="${escapeAttr(r.image_url)}" alt="${escapeAttr(r.name)}" loading="lazy">${cuisineBadge}</div>`
+        : `<div class="card-img-wrap"><div class="card-img-placeholder">&#127869;</div>${cuisineBadge}</div>`;
+
+      const cats = (r.categories || []).slice(0, 3).map(c =>
+        `<span class="card-tag">${escapeHtml(c)}</span>`
+      ).join("");
+
+      const coordsText = r.latitude != null && r.longitude != null
+        ? `${r.latitude.toFixed(5)}, ${r.longitude.toFixed(5)}`
+        : "Unavailable";
+
+      return `
+        <div class="card" style="animation-delay:${index * 0.05}s">
+          ${imgHtml}
+          <div class="card-body">
+            <div class="card-name">${escapeHtml(r.name)}</div>
+            <div class="card-meta">
+              <div class="card-rating">
+                ${starsHtml(r.rating)}
+                <span class="num">${r.rating.toFixed(1)}</span>
+                <span class="reviews">(${r.review_count})</span>
+              </div>
+            </div>
+            ${cats ? `<div class="card-categories">${cats}</div>` : ""}
+            <div class="card-divider"></div>
+            <div class="card-details">
+              <div class="card-detail-row">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                <span>${escapeHtml(r.address)}</span>
+              </div>
+              ${r.phone ? `
+              <div class="card-detail-row">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                <span>${escapeHtml(r.phone)}</span>
+              </div>` : ""}
+              <div class="card-detail-row">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                <span class="card-coords-text">${coordsText}</span>
+              </div>
+              ${r.url ? `
+              <div class="card-detail-row">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                <a href="${escapeAttr(r.url)}" target="_blank" rel="noopener">View on Yelp</a>
+              </div>` : ""}
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function starsHtml(rating) {
+      let html = '<span class="stars">';
+      for (let i = 1; i <= 5; i++) {
+        const fill = rating >= i ? "var(--star)" : rating >= i - 0.5 ? "url(#half)" : "var(--star-empty)";
+        html += `<svg viewBox="0 0 20 20"><defs><linearGradient id="half"><stop offset="50%" stop-color="var(--star)"/><stop offset="50%" stop-color="var(--star-empty)"/></linearGradient></defs><path fill="${fill}" d="M10 1.12l2.47 5.01 5.53.8-4 3.9.94 5.5L10 13.77l-4.94 2.6.94-5.5-4-3.9 5.53-.8z"/></svg>`;
+      }
+      html += "</span>";
+      return html;
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement("div");
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    function escapeAttr(str) {
+      return str.replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    }
+  </script>
+</body>
+</html>
