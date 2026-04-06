@@ -88,6 +88,7 @@
       box-shadow: 0 0 0 3px rgba(232,87,42,0.10), var(--shadow);
     }
 
+
     .search-box input {
       flex: 1;
       border: none;
@@ -495,7 +496,6 @@
     const input = document.getElementById("cityInput");
     const btn = document.getElementById("searchBtn");
     const content = document.getElementById("content");
-
     let currentCity = "";
     let currentOffset = 0;
     const PAGE_SIZE = 20;
@@ -522,7 +522,7 @@
         }
         const data = await res.json();
         if (!data.restaurants || data.restaurants.length === 0) {
-          showMessage("No restaurants found for \u201c" + escapeHtml(currentCity) + ".\u201d Try another city.");
+          showMessage("No restaurants found for \u201c" + escapeHtml(currentCity) + ".\u201d Yelp may not have coverage for this area. Try a different city or check the spelling.");
         } else {
           showResults(currentCity, data.restaurants, data.total, data.offset, data.limit);
         }

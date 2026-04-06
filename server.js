@@ -52,7 +52,7 @@ app.get("/api/restaurants", async (req, res) => {
       if (response.status === 401) {
         message = "Invalid API key. Please check your YELP_API_KEY.";
       } else if (response.status === 400) {
-        message = errorBody?.error?.description || "Could not find that location. Please check the city name.";
+        message = "Could not find that location. Yelp may not have coverage for this area. Please check the spelling or try a different city.";
       } else if (response.status === 429) {
         message = "Too many requests. Please wait a moment and try again.";
       } else if (response.status >= 500) {
