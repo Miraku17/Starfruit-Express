@@ -8,7 +8,7 @@ A simple JavaScript web app that lets you search any city and browse restaurants
 
 I built a Node.js/Express backend that proxies requests to the Yelp Fusion API, keeping the API key server-side so it's never exposed to the browser. The frontend is vanilla HTML/CSS/JS — no frameworks, no build step — with a search input that fetches restaurants by city.
 
-I used Yelp's [`radius`](https://docs.developer.yelp.com/reference/v3_business_search) parameter set to 8047 meters (~5 miles) and `best_match` sorting to keep results relevant and within city limits. The UI displays each restaurant as a card with its photo, name, star rating, cuisine categories, address, phone number, and coordinates. Results are paginated at 20 per page.
+I used Yelp's [`radius`](https://docs.developer.yelp.com/reference/v3_business_search) parameter set to 8047 meters (~5 miles) and `best_match` sorting to keep results relevant and within city limits. The UI displays each restaurant as a card with its photo, name, star rating, cuisine categories, address, phone number, and coordinates. Restaurant images use **lazy loading** (`loading="lazy"`) so only visible images are fetched, improving initial page load performance. Results are **paginated** at 20 per page with Previous/Next navigation, allowing users to browse through all available restaurants without loading everything at once.
 
 ## Accuracy & Edge Cases
 
